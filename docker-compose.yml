@@ -1,5 +1,14 @@
 version: '3.6'
 services:
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    restart: always
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    networks:
+      - iot
+
   telegraf:
     image: telegraf:1.18-alpine
     volumes:
@@ -9,16 +18,20 @@ services:
     links:
       - influxdb
     ports:
-    - '127.0.0.1:8125:8125/udp'
+    - '8125:8125/udp'
+    networks:
+      - iot
 
   influxdb:
     image: influxdb:1.8-alpine
     env_file: configuration.env
     ports:
-      - '127.0.0.1:8086:8086'
+      - '8086:8086'
     volumes:
       - ./:/imports
       - influxdb_data:/var/lib/influxdb
+    networks:
+      - iot
 
   grafana:
     image: grafana/grafana:8.0.2
@@ -28,11 +41,26 @@ services:
     links:
       - influxdb
     ports:
-      - '127.0.0.1:3000:3000'
+      - '3000:3000'
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning/:/etc/grafana/provisioning/
       - ./grafana/dashboards/:/var/lib/grafana/dashboards/
+    networks:
+      - iot
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./portainer-data:/data
+    ports:
+      - 9000:9000
 
 volumes:
   grafana_data: {}
