@@ -62,6 +62,9 @@ services:
     ports:
       - 9000:9000
 
+networks:
+  iot:
+
 volumes:
   grafana_data: {}
   influxdb_data: {}
