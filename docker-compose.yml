@@ -3,7 +3,7 @@ services:
   mosquitto:
     image: eclipse-mosquitto:latest
     volumes:
-      - ./:/mosquitto/:rw
+      - ./mosquitto/config:/mosquitto/config/
     restart: always
     ports:
       - "1883:1883"
